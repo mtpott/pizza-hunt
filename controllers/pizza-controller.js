@@ -5,6 +5,15 @@ const pizzaController = {
     //getAllPizza serves as the callback function for GET /api/pizzas route
     getAllPizza(req, res) {
         Pizza.find({})
+        //this will populate the field we want to show up!
+        .populate({
+            path: 'comments',
+            //__v is something that Mongoose populates, but we don't care about that, so include the (-) in front to make sure Mongoose knows we don't want that in our field
+            select: '-__v'
+        })
+        .select('-__v')
+        //this will sort in descending order by _id value
+        .sort({ _id: -1 })
         .then(dbPizzaData => res.json(dbPizzaData))
         .catch(err => {
             console.log(err);
@@ -15,6 +24,11 @@ const pizzaController = {
     //desctructuring the params from the req because it's all we need to fulfill this request
     getPizzaById({ params }, res) {
         Pizza.findOne({ _id: params.id })
+        .populate({
+            path: 'comments',
+            select: '-__v'
+        })
+        .select('-__v')
         .then(dbPizzaData => {
             if(!dbPizzaData) {
                 res.status(404).json({ message: 'pizza not found with this id.' });
